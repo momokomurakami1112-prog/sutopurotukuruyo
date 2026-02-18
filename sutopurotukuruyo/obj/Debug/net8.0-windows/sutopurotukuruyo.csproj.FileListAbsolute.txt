@@ -1,0 +1,16 @@
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\bin\Debug\net8.0-windows\sutopurotukuruyo.exe
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\bin\Debug\net8.0-windows\sutopurotukuruyo.deps.json
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\bin\Debug\net8.0-windows\sutopurotukuruyo.runtimeconfig.json
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\bin\Debug\net8.0-windows\sutopurotukuruyo.dll
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\bin\Debug\net8.0-windows\sutopurotukuruyo.pdb
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.Form1.resources
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.csproj.GenerateResource.cache
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.AssemblyInfoInputs.cache
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.AssemblyInfo.cs
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.csproj.CoreCompileInputs.cache
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.dll
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\refint\sutopurotukuruyo.dll
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.pdb
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\sutopurotukuruyo.genruntimeconfig.cache
+C:\Users\m_murakami\source\repos\sutopurotukuruyo\sutopurotukuruyo\obj\Debug\net8.0-windows\ref\sutopurotukuruyo.dll
