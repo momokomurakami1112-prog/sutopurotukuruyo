@@ -30,7 +30,7 @@
         {
             FilePathTextBox = new TextBox();
             LoadFileButton = new Button();
-            textBox1 = new TextBox();
+            MethodTextBox = new TextBox();
             MethodGenerateButton = new Button();
             SuspendLayout();
             // 
@@ -52,14 +52,15 @@
             LoadFileButton.UseVisualStyleBackColor = true;
             LoadFileButton.Click += LoadFileButton_Click;
             // 
-            // textBox1
+            // MethodTextBox
             // 
-            textBox1.BorderStyle = BorderStyle.FixedSingle;
-            textBox1.Location = new Point(12, 45);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(776, 393);
-            textBox1.TabIndex = 2;
+            MethodTextBox.BorderStyle = BorderStyle.FixedSingle;
+            MethodTextBox.Location = new Point(12, 45);
+            MethodTextBox.Multiline = true;
+            MethodTextBox.Name = "MethodTextBox";
+            MethodTextBox.ScrollBars = ScrollBars.Both;
+            MethodTextBox.Size = new Size(776, 393);
+            MethodTextBox.TabIndex = 2;
             // 
             // MethodGenerateButton
             // 
@@ -77,7 +78,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(MethodGenerateButton);
-            Controls.Add(textBox1);
+            Controls.Add(MethodTextBox);
             Controls.Add(LoadFileButton);
             Controls.Add(FilePathTextBox);
             Name = "Form1";
@@ -90,7 +91,7 @@
 
         private TextBox FilePathTextBox;
         private Button LoadFileButton;
-        private TextBox textBox1;
+        private TextBox MethodTextBox;
         private Button MethodGenerateButton;
     }
 }
