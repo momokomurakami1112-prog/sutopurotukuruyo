@@ -5,10 +5,19 @@ namespace sutopurotukuruyo
 {
     public partial class Form1 : Form
     {
+        bool _isSub;
+        bool _isTransaction;
+        string _sqlConnectionName;
+        string _sqlCommandName;
+
         public Form1()
         {
             InitializeComponent();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            SubRadioButton.Checked = true;
+            NotUseTransactionRadioButton.Checked = true;
+            SqlConnectionNameTextBox.Text = "_sqlConnection";
+            SqlCommandNameTextBox.Text = "_sqlCommand";
         }
 
         // ファイル読込ボタン
@@ -42,128 +51,53 @@ namespace sutopurotukuruyo
                 return;
             }
 
-            string[] allLines = File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis"));
-            List<string> parameterLines = ExtractParameterLines(allLines);
+            // ユーザーの選択部分を取得
+            GetUserSelectedOptions();
 
+            // Input/Outputパラメータのみを取得
+            List<string> parameterLines = ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis")));
 
-            List<StoredProcedureParameter> parameterList = new List<StoredProcedureParameter>();
-            foreach (string line in parameterLines)
-            {
-                StoredProcedureParameter parameter = ParseParameter(line);
+            // パラメータをデータクラスのリストとして取得
+            List<StoredProcedureParameter> parameterList = GetParameterDataList(parameterLines);
 
-                if (parameter != null)
-                {
-                    parameterList.Add(parameter);
-                }
-            }
+            // テキストボックスをクリア
             MethodTextBox.Clear();
-            StringBuilder sb = new StringBuilder();
 
-            foreach (var p in parameterList)
-            {
-                string sqlDbType = ConvertToSqlDbType(p.SqlType);
-
-                // コメント行
-                if (!string.IsNullOrWhiteSpace(p.Comment))
-                {
-                    sb.AppendLine($"' {p.Comment}");
-                }
-
-                // Decimal系は特別扱い
-                if (sqlDbType.Equals("Decimal", StringComparison.OrdinalIgnoreCase))
-                {
-                    sb.AppendLine($"sqlcmd.Parameters.Add(\"@{p.Name}\", SqlDbType.{sqlDbType})");
-
-                    // Precision / Scale があれば設定
-                    if (!string.IsNullOrWhiteSpace(p.PrecisionText))
-                    {
-                        sb.AppendLine($"sqlcmd.Parameters(\"@{p.Name}\").Precision = {p.PrecisionText}");
-                    }
-                    if (!string.IsNullOrWhiteSpace(p.ScaleText))
-                    {
-                        sb.AppendLine($"sqlcmd.Parameters(\"@{p.Name}\").Scale = {p.ScaleText}");
-                    }
-
-                    if (!p.IsOutput)
-                    {
-                        sb.AppendLine($"sqlcmd.Parameters(\"@{p.Name}\").Value = ");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"sqlcmd.Parameters(\"@{p.Name}\").Direction = ParameterDirection.Output");
-                    }
-                }
-                else
-                {
-                    // VarChar / Char 系
-                    string lengthText = "";
-                    if (sqlDbType.Equals("Char", StringComparison.OrdinalIgnoreCase) ||
-                        sqlDbType.Equals("VarChar", StringComparison.OrdinalIgnoreCase) ||
-                        sqlDbType.Equals("NChar", StringComparison.OrdinalIgnoreCase) ||
-                        sqlDbType.Equals("NVarChar", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (!string.IsNullOrWhiteSpace(p.LengthText))
-                        {
-                            lengthText = $", {p.LengthText}";
-                        }
-                    }
-
-                    string line;
-                    if (p.IsOutput)
-                    {
-                        line = $"sqlcmd.Parameters.Add(\"@{p.Name}\", SqlDbType.{sqlDbType}{lengthText}).Direction = ParameterDirection.Output";
-                    }
-                    else
-                    {
-                        line = $"sqlcmd.Parameters.Add(\"@{p.Name}\", SqlDbType.{sqlDbType}{lengthText}).Value = ";
-                    }
-                    sb.AppendLine(line);
-                }
-            }
+            //StringBuilder header = new StringBuilder();
+            StringBuilder parameter = GenerateMethodParameter(parameterList);
+            StringBuilder footer = new StringBuilder();
 
             // TextBox に表示
-            MethodTextBox.Text = sb.ToString();
+            MethodTextBox.Text = parameter.ToString();
         }
 
-        private string ConvertToSqlDbType(string sqlType)
+        // ユーザーの選択部分を取得
+        private void GetUserSelectedOptions()
         {
-            switch (sqlType.ToLower())
-            {
-                case "tinyint": return "TinyInt";
-                case "smallint": return "SmallInt";
-                case "int": return "Int";
-                case "decimal": return "Decimal";
-                case "char": return "Char";
-                case "varchar": return "VarChar";
-                case "nvarchar": return "NVarChar";
-                case "bit": return "Bit";
-                case "datetime": return "DateTime";
-                default: return sqlType;
-            }
+            _isSub = SubRadioButton.Checked;
+            _isTransaction = UseTransactionRadioButton.Checked;
+            _sqlConnectionName = SqlConnectionNameTextBox.Text ?? "";
+            _sqlCommandName = SqlCommandNameTextBox.Text ?? "";
         }
 
-        // パラメータ解析
+        // パラメータ部分を取得
         private List<string> ExtractParameterLines(string[] allLines)
         {
             List<string> parameterLines = new List<string>();
-
             bool isInsideParameterArea = false;
 
             foreach (string rawLine in allLines)
             {
                 string line = rawLine.Trim();
-
                 if (line.StartsWith("CREATE", StringComparison.OrdinalIgnoreCase))
                 {
                     isInsideParameterArea = true;
                     continue;
                 }
-
                 if (!isInsideParameterArea)
                 {
                     continue;
                 }
-
                 if (line.StartsWith("WITH", StringComparison.OrdinalIgnoreCase) ||
                     line.StartsWith("AS", StringComparison.OrdinalIgnoreCase))
                 {
@@ -171,7 +105,6 @@ namespace sutopurotukuruyo
                 }
 
                 int atIndex = line.IndexOf("@");
-
                 if (atIndex >= 0)
                 {
                     string parameterPart = line.Substring(atIndex).TrimEnd(',');
@@ -182,6 +115,25 @@ namespace sutopurotukuruyo
             return parameterLines;
         }
 
+        // パラメータをデータクラスに変換
+        private List<StoredProcedureParameter> GetParameterDataList(List<string> parameterLines)
+        {
+            List<StoredProcedureParameter> parameterList = new List<StoredProcedureParameter>();
+
+            foreach (string line in parameterLines)
+            {
+                StoredProcedureParameter parameter = ParseParameter(line);
+
+                if (parameter != null)
+                {
+                    parameterList.Add(parameter);
+                }
+            }
+
+            return parameterList;
+        }
+
+        // パラメータ解析
         private StoredProcedureParameter ParseParameter(string line)
         {
             string pattern =
@@ -207,7 +159,7 @@ namespace sutopurotukuruyo
             {
                 string length = match.Groups["length"].Value.Trim();
 
-                // Decimal(7,2) の場合は Precision / Scale に分ける
+                // Decimalの場合は Precision / Scale に分ける
                 if (parameter.SqlType.Equals("decimal", StringComparison.OrdinalIgnoreCase) &&
                     length.Contains(","))
                 {
@@ -227,16 +179,91 @@ namespace sutopurotukuruyo
             return parameter;
         }
 
-
-        public class StoredProcedureParameter
+        // パラメータのTypeを変換
+        private string ConvertToSqlDbType(string sqlType)
         {
-            public string? Name { get; set; }
-            public string? SqlType { get; set; }
-            public string? LengthText { get; set; }
-            public bool IsOutput { get; set; }
-            public string? Comment { get; set; }
-            public string? PrecisionText { get; set; }
-            public string? ScaleText { get; set; }
+            switch (sqlType.ToLower())
+            {
+                case "tinyint": return "TinyInt";
+                case "smallint": return "SmallInt";
+                case "int": return "Int";
+                case "decimal": return "Decimal";
+                case "char": return "Char";
+                case "varchar": return "VarChar";
+                case "nvarchar": return "NVarChar";
+                case "bit": return "Bit";
+                case "datetime": return "DateTime";
+                default: return sqlType;
+            }
         }
+
+        // メソッドのパラメータ部分を作成
+        private StringBuilder GenerateMethodParameter(List<StoredProcedureParameter> parameterList)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (var parameter in parameterList)
+            {
+                // コメント行
+                if (!string.IsNullOrWhiteSpace(parameter.Comment))
+                {
+                    stringBuilder.AppendLine($"' {parameter.Comment}");
+                }
+
+                string sqlDbType = ConvertToSqlDbType(parameter.SqlType);
+                // Decimal系は特別扱い
+                if (sqlDbType.Equals("Decimal", StringComparison.OrdinalIgnoreCase))
+                {
+                    stringBuilder.AppendLine($"sqlcmd.Parameters.Add(\"@{parameter.Name}\", SqlDbType.{sqlDbType})");
+
+                    // Precision / Scale があれば設定
+                    if (!string.IsNullOrWhiteSpace(parameter.PrecisionText))
+                    {
+                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
+                    }
+                    if (!string.IsNullOrWhiteSpace(parameter.ScaleText))
+                    {
+                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
+                    }
+
+                    if (!parameter.IsOutput)
+                    {
+                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Value = ");
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Direction = ParameterDirection.Output");
+                    }
+                }
+                else
+                {
+                    // VarChar / Char 系
+                    string lengthText = "";
+                    if (sqlDbType.Equals("Char", StringComparison.OrdinalIgnoreCase) ||
+                        sqlDbType.Equals("VarChar", StringComparison.OrdinalIgnoreCase) ||
+                        sqlDbType.Equals("NChar", StringComparison.OrdinalIgnoreCase) ||
+                        sqlDbType.Equals("NVarChar", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!string.IsNullOrWhiteSpace(parameter.LengthText))
+                        {
+                            lengthText = $", {parameter.LengthText}";
+                        }
+                    }
+
+                    string line;
+                    if (parameter.IsOutput)
+                    {
+                        line = $"sqlcmd.Parameters.Add(\"@{parameter.Name}\", SqlDbType.{sqlDbType}{lengthText}).Direction = ParameterDirection.Output";
+                    }
+                    else
+                    {
+                        line = $"sqlcmd.Parameters.Add(\"@{parameter.Name}\", SqlDbType.{sqlDbType}{lengthText}).Value = ";
+                    }
+                    stringBuilder.AppendLine(line);
+                }
+            }
+
+            return stringBuilder;
+        }
+
     }
 }
