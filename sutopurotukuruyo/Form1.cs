@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using sutopurotukuruyo.Templates;
 
 namespace sutopurotukuruyo
 {
@@ -63,8 +64,11 @@ namespace sutopurotukuruyo
             // テキストボックスをクリア
             MethodTextBox.Clear();
 
+            // ヘッダー組立
             //StringBuilder header = new StringBuilder();
+            // ボディ組立
             StringBuilder parameter = GenerateMethodParameter(parameterList);
+            // フッター組立
             StringBuilder footer = new StringBuilder();
 
             // TextBox に表示
@@ -201,6 +205,7 @@ namespace sutopurotukuruyo
         private StringBuilder GenerateMethodParameter(List<StoredProcedureParameter> parameterList)
         {
             StringBuilder stringBuilder = new StringBuilder();
+
             foreach (var parameter in parameterList)
             {
                 // コメント行
@@ -210,28 +215,30 @@ namespace sutopurotukuruyo
                 }
 
                 string sqlDbType = ConvertToSqlDbType(parameter.SqlType);
+
                 // Decimal系は特別扱い
                 if (sqlDbType.Equals("Decimal", StringComparison.OrdinalIgnoreCase))
                 {
-                    stringBuilder.AppendLine($"sqlcmd.Parameters.Add(\"@{parameter.Name}\", SqlDbType.{sqlDbType})");
-
-                    // Precision / Scale があれば設定
+                    // Add部分（Decimalはlengthなし）
+                    stringBuilder.AppendLine(string.Format(CodeTemplates.AddParameterTemplate, parameter.Name, sqlDbType, ""));
+                    // Precision
                     if (!string.IsNullOrWhiteSpace(parameter.PrecisionText))
                     {
-                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
-                    }
-                    if (!string.IsNullOrWhiteSpace(parameter.ScaleText))
-                    {
-                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
+                        stringBuilder.AppendLine(
+                            $"sqlcmd.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
                     }
 
-                    if (!parameter.IsOutput)
+                    // Scale
+                    if (!string.IsNullOrWhiteSpace(parameter.ScaleText))
                     {
-                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Value = ");
+                        stringBuilder.AppendLine(
+                            $"sqlcmd.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
                     }
-                    else
+
+                    // Outputの場合はDirection上書き
+                    if (parameter.IsOutput)
                     {
-                        stringBuilder.AppendLine($"sqlcmd.Parameters(\"@{parameter.Name}\").Direction = ParameterDirection.Output");
+                        stringBuilder.AppendLine(string.Format(CodeTemplates.AddOutputParameterTemplate, parameter.Name, sqlDbType, ""));
                     }
                 }
                 else
@@ -249,21 +256,17 @@ namespace sutopurotukuruyo
                         }
                     }
 
-                    string line;
-                    if (parameter.IsOutput)
-                    {
-                        line = $"sqlcmd.Parameters.Add(\"@{parameter.Name}\", SqlDbType.{sqlDbType}{lengthText}).Direction = ParameterDirection.Output";
-                    }
-                    else
-                    {
-                        line = $"sqlcmd.Parameters.Add(\"@{parameter.Name}\", SqlDbType.{sqlDbType}{lengthText}).Value = ";
-                    }
+                    string line = parameter.IsOutput
+                        ? string.Format(CodeTemplates.AddOutputParameterTemplate, parameter.Name, sqlDbType, lengthText)
+                        : string.Format(CodeTemplates.AddParameterTemplate, parameter.Name, sqlDbType, lengthText);
+
                     stringBuilder.AppendLine(line);
                 }
             }
 
             return stringBuilder;
         }
+
 
     }
 }
