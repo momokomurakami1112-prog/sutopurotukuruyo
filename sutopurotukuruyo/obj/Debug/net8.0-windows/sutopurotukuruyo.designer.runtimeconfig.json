@@ -12,12 +12,11 @@
       }
     ],
     "additionalProbingPaths": [
-      "C:\\Users\\m_murakami\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\m_murakami\\.nuget\\packages",
+      "C:\\Users\\momok\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\momok\\.nuget\\packages",
       "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
     ],
     "configProperties": {
-      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": true,
       "CSWINRT_USE_WINDOWS_UI_XAML_PROJECTIONS": false,
       "Microsoft.NETCore.DotNetHostPolicy.SetAppPaths": true
     }

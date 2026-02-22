@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="sutopurotukuruyo.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="LastFolderPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ConnectionName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">_sqlConnection</Value>
+    </Setting>
+    <Setting Name="CommandName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">_sqlCommand</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

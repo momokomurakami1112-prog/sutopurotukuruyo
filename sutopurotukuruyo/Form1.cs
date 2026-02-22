@@ -8,8 +8,10 @@ namespace sutopurotukuruyo
     {
         bool _isSub;
         bool _isTransaction;
+        string _fileName;
         string _sqlConnectionName;
         string _sqlCommandName;
+
 
         public Form1()
         {
@@ -17,9 +19,31 @@ namespace sutopurotukuruyo
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             SubRadioButton.Checked = true;
             NotUseTransactionRadioButton.Checked = true;
-            SqlConnectionNameTextBox.Text = "_sqlConnection";
-            SqlCommandNameTextBox.Text = "_sqlCommand";
+            SqlConnectionNameTextBox.Text = Properties.Settings.Default.ConnectionName;
+            SqlCommandNameTextBox.Text = Properties.Settings.Default.CommandName;
+
+            FilePathTextBox.DragEnter += FilePathTextBox_DragEnter;
+            FilePathTextBox.DragDrop += FilePathTextBox_DragDrop;
         }
+
+        private void FilePathTextBox_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+        }
+
+        private void FilePathTextBox_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files.Length > 0)
+            {
+                FilePathTextBox.Text = files[0];
+            }
+        }
+
 
         // ファイル読込ボタン
         private void LoadFileButton_Click(object sender, EventArgs e)
@@ -28,11 +52,16 @@ namespace sutopurotukuruyo
             dialog.Title = "ストアドプロシージャーを選択";
             dialog.Filter = "sqlファイル (*.sql)|*.sql|すべてのファイル (*.*)|*.*";
             dialog.Multiselect = false;
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.LastFolderPath))
+            {
+                dialog.InitialDirectory = Properties.Settings.Default.LastFolderPath;
+            }
 
             if (dialog.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
+            Properties.Settings.Default.LastFolderPath = dialog.FileName;
             FilePathTextBox.Text = dialog.FileName;
         }
 
@@ -56,7 +85,8 @@ namespace sutopurotukuruyo
             GetUserSelectedOptions();
 
             // Input/Outputパラメータのみを取得
-            List<string> parameterLines = ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis")));
+            //List<string> parameterLines = ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis")));
+            List<string> parameterLines = ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text));
 
             // パラメータをデータクラスのリストとして取得
             List<StoredProcedureParameter> parameterList = GetParameterDataList(parameterLines);
@@ -65,14 +95,14 @@ namespace sutopurotukuruyo
             MethodTextBox.Clear();
 
             // ヘッダー組立
-            //StringBuilder header = new StringBuilder();
+            StringBuilder Header = GenerateMethodHeader();
             // ボディ組立
             StringBuilder parameter = GenerateMethodParameter(parameterList);
             // フッター組立
-            StringBuilder footer = new StringBuilder();
+            StringBuilder footer = GenerateMethodFooter();
 
             // TextBox に表示
-            MethodTextBox.Text = parameter.ToString();
+            MethodTextBox.Text = Header.ToString() + parameter.ToString() + footer.ToString();
         }
 
         // ユーザーの選択部分を取得
@@ -82,6 +112,11 @@ namespace sutopurotukuruyo
             _isTransaction = UseTransactionRadioButton.Checked;
             _sqlConnectionName = SqlConnectionNameTextBox.Text ?? "";
             _sqlCommandName = SqlCommandNameTextBox.Text ?? "";
+            _fileName = Path.GetFileNameWithoutExtension(FilePathTextBox.Text);
+
+            Properties.Settings.Default.ConnectionName = _sqlConnectionName;
+            Properties.Settings.Default.CommandName = _sqlCommandName;
+            Properties.Settings.Default.Save();
         }
 
         // パラメータ部分を取得
@@ -145,7 +180,7 @@ namespace sutopurotukuruyo
                 @"(?<type>\w+)" +
                 @"(\((?<length>[^)]+)\))?\s*" +
                 @"(?<output>OUTPUT)?\s*" +
-                @"(--<(?<comment>.+?)>)?";
+                @"(--\s*<(?<comment>[^>]+)>)?";
 
             Match match = Regex.Match(line, pattern, RegexOptions.IgnoreCase);
 
@@ -201,11 +236,31 @@ namespace sutopurotukuruyo
             }
         }
 
+        // メソッドのヘッダー部分を作成
+        private StringBuilder GenerateMethodHeader()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            string methodType = _isSub ? "Sub" : "Function";
+            stringBuilder.Append(string.Format(CodeTemplates.MethodTitle, methodType, _fileName));
+            if (_isTransaction)
+            {
+                stringBuilder.Append(string.Format(CodeTemplates.TransactionSet, _sqlConnectionName));
+            }
+            stringBuilder.Append(string.Format(CodeTemplates.MethodHeader, _sqlCommandName, _sqlConnectionName, _fileName));
+            if (_isTransaction)
+            {
+                stringBuilder.Append(string.Format(CodeTemplates.TransactionStart, _sqlConnectionName));
+            }
+            stringBuilder.Append(Environment.NewLine);
+
+            return stringBuilder;
+        }
+
         // メソッドのパラメータ部分を作成
         private StringBuilder GenerateMethodParameter(List<StoredProcedureParameter> parameterList)
         {
             StringBuilder stringBuilder = new StringBuilder();
-
+            stringBuilder.Append(CodeTemplates.ParameterHeader);
             foreach (var parameter in parameterList)
             {
                 // コメント行
@@ -220,7 +275,7 @@ namespace sutopurotukuruyo
                 if (sqlDbType.Equals("Decimal", StringComparison.OrdinalIgnoreCase))
                 {
                     // Add部分（Decimalはlengthなし）
-                    stringBuilder.AppendLine(string.Format(CodeTemplates.AddParameterTemplate, parameter.Name, sqlDbType, ""));
+                    stringBuilder.AppendLine(string.Format(CodeTemplates.AddParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, ""));
                     // Precision
                     if (!string.IsNullOrWhiteSpace(parameter.PrecisionText))
                     {
@@ -238,7 +293,7 @@ namespace sutopurotukuruyo
                     // Outputの場合はDirection上書き
                     if (parameter.IsOutput)
                     {
-                        stringBuilder.AppendLine(string.Format(CodeTemplates.AddOutputParameterTemplate, parameter.Name, sqlDbType, ""));
+                        stringBuilder.AppendLine(string.Format(CodeTemplates.AddOutputParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, ""));
                     }
                 }
                 else
@@ -257,16 +312,66 @@ namespace sutopurotukuruyo
                     }
 
                     string line = parameter.IsOutput
-                        ? string.Format(CodeTemplates.AddOutputParameterTemplate, parameter.Name, sqlDbType, lengthText)
-                        : string.Format(CodeTemplates.AddParameterTemplate, parameter.Name, sqlDbType, lengthText);
+                        ? string.Format(CodeTemplates.AddOutputParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, lengthText)
+                        : string.Format(CodeTemplates.AddParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, lengthText);
 
                     stringBuilder.AppendLine(line);
                 }
             }
+            stringBuilder.Append(Environment.NewLine);
+            stringBuilder.Append(string.Format(CodeTemplates.ReturnValue, _sqlCommandName));
+            stringBuilder.Append(Environment.NewLine);
+            stringBuilder.Append(Environment.NewLine);
 
             return stringBuilder;
         }
 
+        // メソッドのフッター部分を作成
+        private StringBuilder GenerateMethodFooter()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(string.Format(CodeTemplates.ExecuteNonQuery, _sqlCommandName));
+            stringBuilder.Append(string.Format(CodeTemplates.ReturnValueIf, _sqlCommandName));
+            if (_isTransaction)
+            {
+                stringBuilder.Append(string.Format(CodeTemplates.TransactionCommit));
+            }
+            stringBuilder.Append(string.Format(CodeTemplates.ReturnValueIfEnd));
+            stringBuilder.Append(Environment.NewLine);
+            stringBuilder.Append(string.Format(CodeTemplates.MethodFooter, _fileName));
+            if (_isTransaction)
+            {
+                stringBuilder.Append(string.Format(CodeTemplates.TransactionRollback));
+            }
+            if (!_isSub)
+            {
+                stringBuilder.Append(CodeTemplates.RetrunFalse);
+            }
+            stringBuilder.Append(CodeTemplates.TryEnd);
+            if (!_isSub)
+            {
+                stringBuilder.Append(CodeTemplates.RetrunTrue);
+            }
+            string methodType = _isSub ? "Sub" : "Function";
+            stringBuilder.Append(string.Format(CodeTemplates.MethodEnd, methodType));
 
+            return stringBuilder;
+        }
+
+        private async void SelectButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(MethodTextBox.Text))
+            {
+                MessageBox.Show("メソッドが作成されていません。");
+                return;
+            }
+            MethodTextBox.Focus();
+            MethodTextBox.SelectAll();
+            MethodTextBox.Copy();
+
+            CopyStatusLabel.Visible = true;
+            await Task.Delay(1500);
+            CopyStatusLabel.Visible = false;
+        }
     }
 }
