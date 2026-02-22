@@ -67,7 +67,7 @@ namespace sutopurotukuruyo.Templates
 
         // return
         public static readonly string RetrunFalse = "Return False" + Environment.NewLine;
-        public static readonly string RetrunTrue = "Return True";
+        public static readonly string RetrunTrue = "Return True" + Environment.NewLine;
 
     }
 }
