@@ -1,15 +1,12 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using sutopurotukuruyo.Templates;
 
 namespace sutopurotukuruyo
 {
     public partial class Form1 : Form
     {
-        string _sqlConnectionName;
-        string _sqlCommandName;
-
         MethodGenerater _methodGenerater;
+
         public Form1()
         {
             InitializeComponent();
@@ -71,7 +68,7 @@ namespace sutopurotukuruyo
             {
                 return;
             }
-            Properties.Settings.Default.LastFolderPath = dialog.FileName;
+            Properties.Settings.Default.LastFolderPath = Path.GetDirectoryName(dialog.FileName);
             FilePathTextBox.Text = dialog.FileName;
         }
 
@@ -134,8 +131,8 @@ namespace sutopurotukuruyo
             _methodGenerater._sqlCommandName = SqlCommandNameTextBox.Text ?? "";
             _methodGenerater._fileName = Path.GetFileNameWithoutExtension(FilePathTextBox.Text);
 
-            Properties.Settings.Default.ConnectionName = _sqlConnectionName;
-            Properties.Settings.Default.CommandName = _sqlCommandName;
+            Properties.Settings.Default.ConnectionName = SqlConnectionNameTextBox.Text;
+            Properties.Settings.Default.CommandName = SqlCommandNameTextBox.Text;
             Properties.Settings.Default.Save();
         }
 
