@@ -96,6 +96,23 @@ namespace sutopurotukuruyo
             // ユーザーの選択部分を取得
             GetUserSelectedOptions();
 
+            if (string.IsNullOrWhiteSpace(SqlConnectionNameTextBox.Text))
+            {
+                string title = "確認";
+                string message = "SQLConnectionの変数名が指定されていません。\n操作を続けますか？";
+                DialogResult dialogResult = MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (dialogResult == DialogResult.No) return;
+            }
+            if (string.IsNullOrWhiteSpace(SqlCommandNameTextBox.Text))
+            {
+                string title = "確認";
+                string message = "SQLCommandの変数名が指定されていません。\n操作を続けますか？";
+                DialogResult dialogResult = MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (dialogResult == DialogResult.No) return;
+            }
+
             // Input/Outputパラメータのみを取得
             //List<string> parameterLines = ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis")));
             List<string> parameterLines = _methodGenerater.ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text));

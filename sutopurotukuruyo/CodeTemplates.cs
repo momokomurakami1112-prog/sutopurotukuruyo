@@ -42,7 +42,7 @@ namespace sutopurotukuruyo
         // ReturnValueIfEnd
         public static readonly string ReturnValueIfEnd = "End If" + Environment.NewLine;
         // トランザクションをコミット
-        public static readonly string TransactionCommit = "transaction.Commit()";
+        public static readonly string TransactionCommit = "transaction.Commit()" + Environment.NewLine;
         // フッター
         public static readonly string MethodFooter = "Catch ex As SqlException" + Environment.NewLine +
                                              "Dim msgOutForm As New MsgOut" + Environment.NewLine +
