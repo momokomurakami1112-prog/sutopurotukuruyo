@@ -82,9 +82,11 @@ namespace sutopurotukuruyo
                 @"@(?<name>\w+)\s+" +
                 @"(?<type>\w+)" +
                 @"(\((?<length>[^)]+)\))?\s*" +
-                @"(=\s*[^ \t]+)?\s*" +
+                @"(=\s*.*?(?=\s+OUTPUT|\s*--|$))?\s*" +   // ← ここ重要
                 @"(?<output>OUTPUT)?\s*" +
                 @"(--\s*<(?<comment>[^>]+)>)?";
+
+
 
             Match match = Regex.Match(line, pattern, RegexOptions.IgnoreCase);
 
