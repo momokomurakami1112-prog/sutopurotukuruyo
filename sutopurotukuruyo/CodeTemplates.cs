@@ -25,13 +25,13 @@ namespace sutopurotukuruyo
         public static readonly string TransactionStart = "{0}.Transaction = transaction" + Environment.NewLine;
 
         // 区切りラベル
-        public static readonly string ParameterHeader = "★パラメータ" + Environment.NewLine;
+        public static readonly string ParameterHeader = "' ★パラメータ" + Environment.NewLine;
         // パラメータ部分
-        public const string AddParameterTemplate = "{0}.Parameters.Add(\"@{1}\", SqlDbType.{2}{3}).Value = ";
+        public const string AddParameterTemplate = "{0}.Parameters.Add(\"@{1}\", SqlDbType.{2}{3}).Value = \"\"";
         public const string AddOutputParameterTemplate = "{0}.Parameters.Add(\"@{1}\", SqlDbType.{2}{3}).Direction = ParameterDirection.Output";
 
         // ReturnValue
-        public static readonly string ReturnValue = "★ReturnValue" + Environment.NewLine +
+        public static readonly string ReturnValue = "' ★ReturnValue" + Environment.NewLine +
                                                     "{0}.Parameters.Add(\"ReturnValue\", SqlDbType.Int).Direction = ParameterDirection.ReturnValue";
 
         // 実行

@@ -34,7 +34,8 @@
             MethodGenerateButton = new Button();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
-            FunctionRadioButton2 = new RadioButton();
+            ParameterRadioButton = new RadioButton();
+            FunctionRadioButton = new RadioButton();
             SubRadioButton = new RadioButton();
             groupBox3 = new GroupBox();
             UseTransactionRadioButton = new RadioButton();
@@ -77,18 +78,18 @@
             // 
             MethodTextBox.BackColor = SystemColors.Window;
             MethodTextBox.BorderStyle = BorderStyle.FixedSingle;
-            MethodTextBox.Location = new Point(10, 136);
+            MethodTextBox.Location = new Point(10, 162);
             MethodTextBox.Margin = new Padding(3, 2, 3, 2);
             MethodTextBox.Multiline = true;
             MethodTextBox.Name = "MethodTextBox";
             MethodTextBox.ReadOnly = true;
             MethodTextBox.ScrollBars = ScrollBars.Both;
-            MethodTextBox.Size = new Size(679, 285);
+            MethodTextBox.Size = new Size(679, 259);
             MethodTextBox.TabIndex = 2;
             // 
             // MethodGenerateButton
             // 
-            MethodGenerateButton.Location = new Point(607, 110);
+            MethodGenerateButton.Location = new Point(608, 136);
             MethodGenerateButton.Margin = new Padding(3, 2, 3, 2);
             MethodGenerateButton.Name = "MethodGenerateButton";
             MethodGenerateButton.Size = new Size(82, 22);
@@ -112,28 +113,41 @@
             // 
             // groupBox2
             // 
-            groupBox2.Controls.Add(FunctionRadioButton2);
+            groupBox2.Controls.Add(ParameterRadioButton);
+            groupBox2.Controls.Add(FunctionRadioButton);
             groupBox2.Controls.Add(SubRadioButton);
             groupBox2.Location = new Point(10, 63);
             groupBox2.Margin = new Padding(3, 2, 3, 2);
             groupBox2.Name = "groupBox2";
             groupBox2.Padding = new Padding(3, 2, 3, 2);
-            groupBox2.Size = new Size(116, 68);
+            groupBox2.Size = new Size(116, 95);
             groupBox2.TabIndex = 2;
             groupBox2.TabStop = false;
             groupBox2.Text = "メソッドの種類";
             // 
-            // FunctionRadioButton2
+            // ParameterRadioButton
             // 
-            FunctionRadioButton2.AutoSize = true;
-            FunctionRadioButton2.Location = new Point(5, 42);
-            FunctionRadioButton2.Margin = new Padding(3, 2, 3, 2);
-            FunctionRadioButton2.Name = "FunctionRadioButton2";
-            FunctionRadioButton2.Size = new Size(71, 19);
-            FunctionRadioButton2.TabIndex = 1;
-            FunctionRadioButton2.TabStop = true;
-            FunctionRadioButton2.Text = "Function";
-            FunctionRadioButton2.UseVisualStyleBackColor = true;
+            ParameterRadioButton.AutoSize = true;
+            ParameterRadioButton.Location = new Point(6, 65);
+            ParameterRadioButton.Margin = new Padding(3, 2, 3, 2);
+            ParameterRadioButton.Name = "ParameterRadioButton";
+            ParameterRadioButton.Size = new Size(89, 19);
+            ParameterRadioButton.TabIndex = 3;
+            ParameterRadioButton.TabStop = true;
+            ParameterRadioButton.Text = "パラメータのみ";
+            ParameterRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // FunctionRadioButton
+            // 
+            FunctionRadioButton.AutoSize = true;
+            FunctionRadioButton.Location = new Point(5, 42);
+            FunctionRadioButton.Margin = new Padding(3, 2, 3, 2);
+            FunctionRadioButton.Name = "FunctionRadioButton";
+            FunctionRadioButton.Size = new Size(71, 19);
+            FunctionRadioButton.TabIndex = 1;
+            FunctionRadioButton.TabStop = true;
+            FunctionRadioButton.Text = "Function";
+            FunctionRadioButton.UseVisualStyleBackColor = true;
             // 
             // SubRadioButton
             // 
@@ -155,7 +169,7 @@
             groupBox3.Margin = new Padding(3, 2, 3, 2);
             groupBox3.Name = "groupBox3";
             groupBox3.Padding = new Padding(3, 2, 3, 2);
-            groupBox3.Size = new Size(154, 68);
+            groupBox3.Size = new Size(154, 95);
             groupBox3.TabIndex = 0;
             groupBox3.TabStop = false;
             groupBox3.Text = "トランザクション有無";
@@ -194,7 +208,7 @@
             groupBox4.Margin = new Padding(3, 2, 3, 2);
             groupBox4.Name = "groupBox4";
             groupBox4.Padding = new Padding(3, 2, 3, 2);
-            groupBox4.Size = new Size(312, 68);
+            groupBox4.Size = new Size(312, 95);
             groupBox4.TabIndex = 1;
             groupBox4.TabStop = false;
             groupBox4.Text = "変数名指定";
@@ -202,7 +216,7 @@
             // SqlCommandNameTextBox
             // 
             SqlCommandNameTextBox.BorderStyle = BorderStyle.FixedSingle;
-            SqlCommandNameTextBox.Location = new Point(116, 40);
+            SqlCommandNameTextBox.Location = new Point(117, 52);
             SqlCommandNameTextBox.Margin = new Padding(3, 2, 3, 2);
             SqlCommandNameTextBox.Name = "SqlCommandNameTextBox";
             SqlCommandNameTextBox.Size = new Size(191, 23);
@@ -211,7 +225,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(5, 42);
+            label2.Location = new Point(6, 54);
             label2.Name = "label2";
             label2.Size = new Size(89, 15);
             label2.TabIndex = 4;
@@ -220,7 +234,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(5, 17);
+            label1.Location = new Point(6, 24);
             label1.Name = "label1";
             label1.Size = new Size(96, 15);
             label1.TabIndex = 3;
@@ -229,7 +243,7 @@
             // SqlConnectionNameTextBox
             // 
             SqlConnectionNameTextBox.BorderStyle = BorderStyle.FixedSingle;
-            SqlConnectionNameTextBox.Location = new Point(116, 16);
+            SqlConnectionNameTextBox.Location = new Point(117, 23);
             SqlConnectionNameTextBox.Margin = new Padding(3, 2, 3, 2);
             SqlConnectionNameTextBox.Name = "SqlConnectionNameTextBox";
             SqlConnectionNameTextBox.Size = new Size(191, 23);
@@ -269,6 +283,8 @@
             Controls.Add(MethodGenerateButton);
             Controls.Add(MethodTextBox);
             Margin = new Padding(3, 2, 3, 2);
+            MaximumSize = new Size(716, 500);
+            MinimumSize = new Size(716, 500);
             Name = "Form1";
             Text = "ぽえ～";
             groupBox1.ResumeLayout(false);
@@ -293,7 +309,7 @@
         private GroupBox groupBox2;
         private GroupBox groupBox3;
         private GroupBox groupBox4;
-        private RadioButton FunctionRadioButton2;
+        private RadioButton FunctionRadioButton;
         private RadioButton SubRadioButton;
         private RadioButton UseTransactionRadioButton;
         private RadioButton NotUseTransactionRadioButton;
@@ -303,5 +319,6 @@
         private TextBox SqlConnectionNameTextBox;
         private Button SelectButton;
         private Label CopyStatusLabel;
+        private RadioButton ParameterRadioButton;
     }
 }

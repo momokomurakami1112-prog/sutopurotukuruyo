@@ -90,12 +90,6 @@ namespace sutopurotukuruyo
                 MessageBox.Show("ファイルが存在しません。");
                 return;
             }
-
-            // インスタンス作成
-            _methodGenerater = new MethodGenerater();
-            // ユーザーの選択部分を取得
-            GetUserSelectedOptions();
-
             if (string.IsNullOrWhiteSpace(SqlConnectionNameTextBox.Text))
             {
                 string title = "確認";
@@ -113,9 +107,14 @@ namespace sutopurotukuruyo
                 if (dialogResult == DialogResult.No) return;
             }
 
+            // インスタンス作成
+            _methodGenerater = new MethodGenerater();
+            // ユーザーの選択部分を取得
+            GetUserSelectedOptions();
+
             // Input/Outputパラメータのみを取得
-            //List<string> parameterLines = ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis")));
-            List<string> parameterLines = _methodGenerater.ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text));
+            List<string> parameterLines = _methodGenerater.ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text, Encoding.GetEncoding("shift_jis")));
+            //List<string> parameterLines = _methodGenerater.ExtractParameterLines(File.ReadAllLines(FilePathTextBox.Text));
             if (parameterLines.Count == 0)
             {
                 MessageBox.Show("パラメータが存在しません。");
@@ -128,21 +127,33 @@ namespace sutopurotukuruyo
             // テキストボックスをクリア
             MethodTextBox.Clear();
 
-            // ヘッダー組立
-            StringBuilder Header = _methodGenerater.GenerateMethodHeader();
-            // ボディ組立
-            StringBuilder parameter = _methodGenerater.GenerateMethodParameter(parameterList);
-            // フッター組立
-            StringBuilder footer = _methodGenerater.GenerateMethodFooter();
+            if (_methodGenerater._methodType == MethodGenerater.MethodType.Parameter)
+            {
+                // ボディのみ組立
+                StringBuilder parameter = _methodGenerater.GenerateMethodParameter(parameterList);
 
-            // TextBox に表示
-            MethodTextBox.Text = Header.ToString() + parameter.ToString() + footer.ToString();
+                MethodTextBox.Text = parameter.ToString();
+            }
+            else
+            {
+                // ヘッダー組立
+                StringBuilder Header = _methodGenerater.GenerateMethodHeader();
+                // ボディ組立
+                StringBuilder parameter = _methodGenerater.GenerateMethodParameter(parameterList);
+                // フッター組立
+                StringBuilder footer = _methodGenerater.GenerateMethodFooter();
+
+                // TextBox に表示
+                MethodTextBox.Text = Header.ToString() + parameter.ToString() + footer.ToString();
+            }
         }
 
         // ユーザーの選択部分を取得
         private void GetUserSelectedOptions()
         {
-            _methodGenerater._isSub = SubRadioButton.Checked;
+            _methodGenerater._methodType = FunctionRadioButton.Checked
+                    ? MethodGenerater.MethodType.Function : ParameterRadioButton.Checked
+                    ? MethodGenerater.MethodType.Parameter : MethodGenerater.MethodType.Sub;
             _methodGenerater._isTransaction = UseTransactionRadioButton.Checked;
             _methodGenerater._sqlConnectionName = SqlConnectionNameTextBox.Text ?? "";
             _methodGenerater._sqlCommandName = SqlCommandNameTextBox.Text ?? "";

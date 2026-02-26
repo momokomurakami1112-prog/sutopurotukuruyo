@@ -9,11 +9,18 @@ namespace sutopurotukuruyo
 {
     public class MethodGenerater
     {
-        public bool _isSub;
         public bool _isTransaction;
         public string _fileName;
         public string _sqlConnectionName;
         public string _sqlCommandName;
+
+        public enum MethodType
+        {
+            Sub,
+            Function,
+            Parameter
+        }
+        public MethodType _methodType;
 
         // パラメータ部分を取得
         public List<string> ExtractParameterLines(string[] allLines)
@@ -75,6 +82,7 @@ namespace sutopurotukuruyo
                 @"@(?<name>\w+)\s+" +
                 @"(?<type>\w+)" +
                 @"(\((?<length>[^)]+)\))?\s*" +
+                @"(=\s*[^ \t]+)?\s*" +
                 @"(?<output>OUTPUT)?\s*" +
                 @"(--\s*<(?<comment>[^>]+)>)?";
 
@@ -136,7 +144,7 @@ namespace sutopurotukuruyo
         public StringBuilder GenerateMethodHeader()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            string methodType = _isSub ? "Sub" : "Function";
+            string methodType = _methodType.ToString();
             stringBuilder.Append(string.Format(CodeTemplates.MethodTitle, methodType, _fileName));
             if (_isTransaction)
             {
@@ -239,16 +247,16 @@ namespace sutopurotukuruyo
             {
                 stringBuilder.Append(string.Format(CodeTemplates.TransactionRollback));
             }
-            if (!_isSub)
+            if (_methodType == MethodType.Function)
             {
                 stringBuilder.Append(CodeTemplates.RetrunFalse);
             }
             stringBuilder.Append(CodeTemplates.TryEnd);
-            if (!_isSub)
+            if (_methodType == MethodType.Function)
             {
                 stringBuilder.Append(CodeTemplates.RetrunTrue);
             }
-            string methodType = _isSub ? "Sub" : "Function";
+            string methodType = _methodType.ToString();
             stringBuilder.Append(string.Format(CodeTemplates.MethodEnd, methodType));
 
             return stringBuilder;
