@@ -181,25 +181,25 @@ namespace sutopurotukuruyo
                 if (sqlDbType.Equals("Decimal", StringComparison.OrdinalIgnoreCase))
                 {
                     // Add部分（Decimalはlengthなし）
-                    stringBuilder.AppendLine(string.Format(CodeTemplates.AddParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, ""));
+                    if (parameter.IsOutput)
+                    {
+                        stringBuilder.AppendLine(string.Format(CodeTemplates.AddOutputParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, ""));
+                    }
+                    else
+                    {
+                        stringBuilder.AppendLine(string.Format(CodeTemplates.AddParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, ""));
+                    }
+
                     // Precision
                     if (!string.IsNullOrWhiteSpace(parameter.PrecisionText))
                     {
-                        stringBuilder.AppendLine(
-                            $"sqlcmd.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
+                        stringBuilder.AppendLine($"{_sqlConnectionName}.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
                     }
 
                     // Scale
                     if (!string.IsNullOrWhiteSpace(parameter.ScaleText))
                     {
-                        stringBuilder.AppendLine(
-                            $"sqlcmd.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
-                    }
-
-                    // Outputの場合はDirection上書き
-                    if (parameter.IsOutput)
-                    {
-                        stringBuilder.AppendLine(string.Format(CodeTemplates.AddOutputParameterTemplate, _sqlCommandName, parameter.Name, sqlDbType, ""));
+                        stringBuilder.AppendLine($"{_sqlConnectionName}.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
                     }
                 }
                 else
