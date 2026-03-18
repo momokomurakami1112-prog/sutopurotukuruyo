@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\m_murakami\\Downloads\\sutopurotukuruyo-main (2)\\sutopurotukuruyo-main\\sutopurotukuruyo\\sutopurotukuruyo.csproj",
+      "projectUniqueName": "C:\\Users\\m_murakami\\Desktop\\work\\ツール\\sutopurotukuruyo-main\\sutopurotukuruyo\\sutopurotukuruyo.csproj",
       "projectName": "sutopurotukuruyo",
-      "projectPath": "C:\\Users\\m_murakami\\Downloads\\sutopurotukuruyo-main (2)\\sutopurotukuruyo-main\\sutopurotukuruyo\\sutopurotukuruyo.csproj",
+      "projectPath": "C:\\Users\\m_murakami\\Desktop\\work\\ツール\\sutopurotukuruyo-main\\sutopurotukuruyo\\sutopurotukuruyo.csproj",
       "packagesPath": "C:\\Users\\m_murakami\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\m_murakami\\Downloads\\sutopurotukuruyo-main (2)\\sutopurotukuruyo-main\\sutopurotukuruyo\\obj\\",
+      "outputPath": "C:\\Users\\m_murakami\\Desktop\\work\\ツール\\sutopurotukuruyo-main\\sutopurotukuruyo\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -193,13 +193,13 @@ namespace sutopurotukuruyo
                     // Precision
                     if (!string.IsNullOrWhiteSpace(parameter.PrecisionText))
                     {
-                        stringBuilder.AppendLine($"{_sqlConnectionName}.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
+                        stringBuilder.AppendLine($"{_sqlCommandName}.Parameters(\"@{parameter.Name}\").Precision = {parameter.PrecisionText}");
                     }
 
                     // Scale
                     if (!string.IsNullOrWhiteSpace(parameter.ScaleText))
                     {
-                        stringBuilder.AppendLine($"{_sqlConnectionName}.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
+                        stringBuilder.AppendLine($"{_sqlCommandName}.Parameters(\"@{parameter.Name}\").Scale = {parameter.ScaleText}");
                     }
                 }
                 else
